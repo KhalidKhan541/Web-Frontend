@@ -4,7 +4,7 @@
 //  For Cloudflare Pages frontend-only deploy, set to your backend:
 //  const API_BASE = 'https://agentapis.up.railway.app';
 // ─────────────────────────────────────────────────────────
-const API_BASE = 'https://web-khalid-khan-541.vercel.app/';
+const API_BASE = 'https://web-khalid-khan-541.vercel.app';
 
 // App State
 const state = {
