@@ -20,6 +20,7 @@
                 <a onclick="showView('explore')">Explore APIs</a>
                 <a id="nav-portal-link" onclick="showView('portal')" style="display: none;">Developer Portal</a>
                 <a id="nav-admin-link" onclick="showView('admin')" style="display: none;">Admin Catalog</a>
+                <a id="nav-superadmin-link" onclick="showView('superadmin')" style="display: none; color: var(--color-secondary);">⚡ Super Admin</a>
                 <a onclick="showView('docs')">API Docs</a>
             </nav>
             <div class="right-nav">
@@ -107,7 +108,11 @@
                     <button class="btn btn-secondary" style="flex: 1;" onclick="handleAuth('register')">Sign Up</button>
                 </div>
                 
-                            </div>
+                <div style="text-align:center; margin-top:1.5rem; padding-top:1.5rem; border-top: 1px solid var(--border-glass);">
+                    <button class="btn btn-secondary btn-sm" onclick="showView('superadmin-login')" style="font-size:0.8rem; opacity:0.75;">
+                        ⚡ Super Admin Login
+                    </button>
+                </div>
         </section>
 
         <!-- 4. Developer Portal (Dashboard) -->
@@ -128,6 +133,7 @@
                         <div class="sidebar-menu-btn active" onclick="showDashboardPane('keys')">🔑 API Keys & Auth</div>
                         <div class="sidebar-menu-btn" onclick="showDashboardPane('sandbox')">🧪 Sandbox Test</div>
                         <div class="sidebar-menu-btn" onclick="showDashboardPane('transactions')">📊 Usage Logs</div>
+                        <div class="sidebar-menu-btn" onclick="showDashboardPane('account')">⚙️ Account Settings</div>
                     </div>
                 </aside>
 
@@ -225,53 +231,295 @@
                             </table>
                         </div>
                     </div>
+
+                    <!-- D. Account Settings Pane -->
+                    <div id="account-pane" class="dashboard-pane">
+                        <h3 style="margin-bottom: 0.5rem; font-family: var(--font-heading);">Account Settings</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.75rem;">Update your login credentials for this developer account.</p>
+
+                        <div class="settings-section">
+                            <h4>✉️ Change Email Address</h4>
+                            <p class="section-desc">Update the email linked to your account. You will need to log in again after changing it.</p>
+                            <div class="settings-grid">
+                                <div class="form-group">
+                                    <label>New Email Address</label>
+                                    <input type="email" id="dev-new-email" class="form-control" placeholder="new@email.com">
+                                </div>
+                                <div class="form-group">
+                                    <label>Current Password (to confirm)</label>
+                                    <input type="password" id="dev-email-confirm-pass" class="form-control" placeholder="••••••••">
+                                </div>
+                            </div>
+                            <button class="btn btn-primary btn-sm" onclick="devChangeEmail()">Save Email</button>
+                        </div>
+
+                        <div class="settings-section">
+                            <h4>🔒 Change Password</h4>
+                            <p class="section-desc">Choose a strong password. Min 8 characters recommended.</p>
+                            <div class="settings-grid">
+                                <div class="form-group">
+                                    <label>Current Password</label>
+                                    <input type="password" id="dev-current-pass" class="form-control" placeholder="••••••••">
+                                </div>
+                                <div class="form-group">
+                                    <label>New Password</label>
+                                    <input type="password" id="dev-new-pass" class="form-control" placeholder="••••••••">
+                                </div>
+                            </div>
+                            <button class="btn btn-primary btn-sm" onclick="devChangePassword()">Update Password</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- 5. Admin Page -->
+
+
+        <!-- 5. Admin Page (Legacy) -->
         <section id="admin-page" class="page">
             <h2 style="font-family: var(--font-heading); font-weight: 800; font-size: 2.2rem; margin-bottom: 0.5rem;">Admin Catalog Manager</h2>
             <p style="color: var(--text-muted); margin-bottom: 2rem;">Adjust individual prices per call, view overall transaction metrics, and manage user limits.</p>
-            
             <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 2rem;">
-                <!-- API Prices Manager -->
                 <div>
                     <h3 style="font-family: var(--font-heading); margin-bottom: 1rem;">Set Cost per API Call</h3>
                     <div style="overflow-y: auto; max-height: 500px; border: 1px solid var(--border-glass); border-radius: var(--radius-md); background-color: var(--bg-surface);">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>API Integration</th>
-                                    <th>Cost per Call</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="admin-catalog-tbody">
-                                <!-- Populated dynamically -->
-                            </tbody>
-                        </table>
+                        <table><thead><tr><th>API Integration</th><th>Cost per Call</th><th>Actions</th></tr></thead>
+                        <tbody id="admin-catalog-tbody"></tbody></table>
                     </div>
                 </div>
-
-                <!-- Global Audit Log -->
                 <div>
                     <h3 style="font-family: var(--font-heading); margin-bottom: 1rem;">Global System Usage Log</h3>
                     <div style="overflow-y: auto; max-height: 500px; border: 1px solid var(--border-glass); border-radius: var(--radius-md); background-color: var(--bg-surface);">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>User</th>
-                                    <th>API</th>
-                                    <th>Status</th>
-                                    <th>Cost</th>
-                                    <th>Date</th>
-                                </tr>
-                            </thead>
-                            <tbody id="admin-audit-tbody">
-                                <!-- Populated dynamically -->
-                            </tbody>
-                        </table>
+                        <table><thead><tr><th>User</th><th>API</th><th>Status</th><th>Cost</th><th>Date</th></tr></thead>
+                        <tbody id="admin-audit-tbody"></tbody></table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5b. SUPER ADMIN LOGIN PAGE -->
+        <section id="superadmin-login-page" class="page">
+            <div class="superadmin-login">
+                <div class="sa-badge">&#9889; Super Admin Access</div>
+                <h2 style="font-family: var(--font-heading); font-weight: 800; font-size: 1.75rem; margin-bottom: 0.5rem;">Control Center</h2>
+                <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 2rem;">Authenticate with your Super Admin credentials to access the full platform control panel.</p>
+                <div class="form-group">
+                    <label>Super Admin Email</label>
+                    <input type="email" id="sa-login-email" class="form-control" placeholder="superadmin@agentapis.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="sa-login-password" class="form-control" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;">
+                </div>
+                <button class="btn btn-primary" style="width:100%; margin-top:1rem;" onclick="superAdminLogin()">&#9889; Access Control Center</button>
+                <button class="btn btn-secondary btn-sm" style="width:100%; margin-top:0.75rem;" onclick="showView('auth')">&#8592; Back to Developer Login</button>
+                <p style="font-size:0.75rem; color:var(--text-muted); text-align:center; margin-top:1rem;">Default: admin@agentapis.com / admin1234</p>
+            </div>
+        </section>
+
+        <!-- 5c. SUPER ADMIN PANEL -->
+        <section id="superadmin-page" class="page">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem; flex-wrap:wrap; gap:1rem;">
+                <div>
+                    <div style="display:inline-flex; align-items:center; gap:0.5rem; background:linear-gradient(135deg,rgba(99,102,241,0.12),rgba(168,85,247,0.12)); border:1px solid rgba(99,102,241,0.2); border-radius:999px; padding:0.3rem 0.85rem; font-size:0.75rem; font-weight:700; color:var(--color-primary); margin-bottom:0.5rem;">&#9889; SUPER ADMIN MODE</div>
+                    <h2 style="font-family: var(--font-heading); font-weight: 800; font-size: 2.2rem;">Platform Control Center</h2>
+                    <p style="color: var(--text-muted);">Full system access: manage payments, agents, APIs, and platform configuration.</p>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="superAdminLogout()">Sign Out</button>
+            </div>
+
+            <div class="admin-tabs" style="margin-top:1.5rem;">
+                <button class="admin-tab-btn active" onclick="showAdminPane('sa-overview')">&#128202; Overview</button>
+                <button class="admin-tab-btn" onclick="showAdminPane('sa-payments')">&#128179; Payment Approvals</button>
+                <button class="admin-tab-btn" onclick="showAdminPane('sa-agents')">&#129302; Agent Dashboard</button>
+                <button class="admin-tab-btn" onclick="showAdminPane('sa-transactions')">&#128203; Transactions</button>
+                <button class="admin-tab-btn" onclick="showAdminPane('sa-catalog')">&#128193; API Catalog</button>
+                <button class="admin-tab-btn" onclick="showAdminPane('sa-settings')">&#9881;&#65039; Settings</button>
+            </div>
+
+            <!-- OVERVIEW -->
+            <div id="sa-overview-pane" class="admin-pane active">
+                <div class="stat-cards-grid">
+                    <div class="stat-card green">
+                        <div class="stat-label">Total Revenue (USD)</div>
+                        <div class="stat-value" id="sa-stat-revenue">$0.00</div>
+                        <div class="stat-sub">All-time collected</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Registered Agents</div>
+                        <div class="stat-value" id="sa-stat-agents">0</div>
+                        <div class="stat-sub">Developer accounts</div>
+                    </div>
+                    <div class="stat-card amber">
+                        <div class="stat-label">Pending Payments</div>
+                        <div class="stat-value" id="sa-stat-pending">0</div>
+                        <div class="stat-sub">Awaiting approval</div>
+                    </div>
+                    <div class="stat-card purple">
+                        <div class="stat-label">Total API Calls</div>
+                        <div class="stat-value" id="sa-stat-calls">0</div>
+                        <div class="stat-sub">Proxy requests routed</div>
+                    </div>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+                    <div class="settings-section">
+                        <h4>&#128241; Active Easypaisa Account</h4>
+                        <p class="section-desc">Agents send USD API fees to this number. Keep it current.</p>
+                        <div class="ep-number-display">
+                            <div class="ep-icon">ep</div>
+                            <div>
+                                <span class="ep-label">Payment Collection Number</span>
+                                <span class="ep-num" id="sa-ep-number-text">Not configured</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="showAdminPane('sa-settings')">Change Number &rarr;</button>
+                    </div>
+                    <div class="settings-section">
+                        <h4>&#9889; Quick Actions</h4>
+                        <p class="section-desc">Common administrative operations.</p>
+                        <div style="display:flex; flex-direction:column; gap:0.6rem;">
+                            <button class="btn btn-secondary btn-sm" onclick="showAdminPane('sa-payments')" style="text-align:left;">&#128179; Review Pending Payments</button>
+                            <button class="btn btn-secondary btn-sm" onclick="showAdminPane('sa-agents')" style="text-align:left;">&#129302; View All Agents</button>
+                            <button class="btn btn-secondary btn-sm" onclick="showAdminPane('sa-catalog')" style="text-align:left;">&#128193; Update API Pricing (USD)</button>
+                            <button class="btn btn-secondary btn-sm" onclick="showAdminPane('sa-settings')" style="text-align:left;">&#9881;&#65039; Change Admin Credentials</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAYMENT APPROVALS -->
+            <div id="sa-payments-pane" class="admin-pane">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; flex-wrap:wrap; gap:0.75rem;">
+                    <div>
+                        <h3 style="font-family:var(--font-heading); font-size:1.35rem; font-weight:700;">Payment Approval Queue</h3>
+                        <p style="color:var(--text-muted); font-size:0.85rem;">Agents send USD payments to your Easypaisa number. Approve to credit their wallet.</p>
+                    </div>
+                    <div style="display:flex; gap:0.5rem; align-items:center;">
+                        <select id="payment-status-filter" class="form-control" style="width:auto; padding:0.45rem 0.75rem;" onchange="renderPaymentQueue()">
+                            <option value="all">All Payments</option>
+                            <option value="pending">Pending Only</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                        <button class="btn btn-secondary btn-sm" onclick="loadPaymentQueue()">&#8635; Refresh</button>
+                    </div>
+                </div>
+                <div class="settings-section" style="margin-bottom:1.5rem;">
+                    <h4>&#10133; Log Incoming Payment</h4>
+                    <p class="section-desc">When an agent sends payment to your Easypaisa number, record it here for approval.</p>
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:0.75rem; align-items:flex-end;">
+                        <div class="form-group" style="margin:0;"><label>Agent Email</label><input type="email" id="new-payment-email" class="form-control" placeholder="agent@example.com"></div>
+                        <div class="form-group" style="margin:0;"><label>Amount (USD)</label><input type="number" id="new-payment-usd" class="form-control" placeholder="5.00" step="0.01" min="0"></div>
+                        <div class="form-group" style="margin:0;"><label>Easypaisa Ref # (optional)</label><input type="text" id="new-payment-ref" class="form-control" placeholder="EP-XXXXXXXXX"></div>
+                        <button class="btn btn-primary btn-sm" onclick="logIncomingPayment()" style="height:42px;">Log</button>
+                    </div>
+                </div>
+                <div class="payment-queue" id="payment-queue-list"></div>
+            </div>
+
+            <!-- AGENT DASHBOARD -->
+            <div id="sa-agents-pane" class="admin-pane">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
+                    <div>
+                        <h3 style="font-family:var(--font-heading); font-size:1.35rem; font-weight:700;">Agent Dashboard</h3>
+                        <p style="color:var(--text-muted); font-size:0.85rem;">All registered developer accounts and their USD API usage stats.</p>
+                    </div>
+                    <input type="text" id="agent-search" placeholder="Search agents..." class="form-control" style="width:220px;" oninput="renderAgentTable()">
+                </div>
+                <div class="agent-table-wrap">
+                    <table>
+                        <thead><tr><th>Agent Email</th><th>API Key</th><th>Balance (USD)</th><th>Total Calls</th><th>Spent (USD)</th><th>Status</th><th>Actions</th></tr></thead>
+                        <tbody id="sa-agents-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TRANSACTIONS -->
+            <div id="sa-transactions-pane" class="admin-pane">
+                <div style="margin-bottom:1rem;">
+                    <h3 style="font-family:var(--font-heading); font-size:1.35rem; font-weight:700;">Transaction Management</h3>
+                    <p style="color:var(--text-muted); font-size:0.85rem;">Complete audit trail of all API proxy calls across all agents.</p>
+                </div>
+                <div class="log-filter-bar">
+                    <input type="text" id="tx-user-filter" placeholder="Filter by user..." oninput="renderAdminTransactions()">
+                    <input type="text" id="tx-api-filter" placeholder="Filter by API..." oninput="renderAdminTransactions()">
+                    <select id="tx-status-filter" onchange="renderAdminTransactions()">
+                        <option value="all">All Statuses</option>
+                        <option value="success">Success (2xx)</option>
+                        <option value="error">Error (4xx/5xx)</option>
+                    </select>
+                </div>
+                <div style="overflow-x:auto; border:1px solid var(--border-glass); border-radius:var(--radius-md);">
+                    <table>
+                        <thead><tr><th>Agent</th><th>API Called</th><th>Status</th><th>Cost (USD)</th><th>Cost (PKR)</th><th>Timestamp</th></tr></thead>
+                        <tbody id="sa-tx-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- API CATALOG MANAGER -->
+            <div id="sa-catalog-pane" class="admin-pane">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
+                    <div>
+                        <h3 style="font-family:var(--font-heading); font-size:1.35rem; font-weight:700;">API Catalog Manager</h3>
+                        <p style="color:var(--text-muted); font-size:0.85rem;">Set per-call pricing in USD. PKR equivalent shown at current exchange rate.</p>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:0.75rem;">
+                        <label style="font-size:0.82rem; color:var(--text-muted); font-weight:600;">USD/PKR Rate:</label>
+                        <input type="number" id="usd-pkr-rate" class="form-control" style="width:110px;" value="280" min="1" onchange="renderCatalogTable()">
+                    </div>
+                </div>
+                <div style="overflow-x:auto; border:1px solid var(--border-glass); border-radius:var(--radius-md);">
+                    <table class="usd-pricing-table">
+                        <thead><tr><th>API Name</th><th>Category</th><th>Price (USD / call)</th><th>&asymp; PKR equiv.</th><th>Status</th><th>Save</th></tr></thead>
+                        <tbody id="sa-catalog-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SETTINGS -->
+            <div id="sa-settings-pane" class="admin-pane">
+                <h3 style="font-family:var(--font-heading); font-size:1.35rem; font-weight:700; margin-bottom:1.5rem;">Platform Settings</h3>
+                <div class="settings-section">
+                    <h4>&#128241; Easypaisa Collection Number</h4>
+                    <p class="section-desc">This is the Easypaisa number agents must send their USD API payment to. It is displayed on every payment instruction screen. Update whenever you switch your receiving account.</p>
+                    <div class="ep-number-display">
+                        <div class="ep-icon">ep</div>
+                        <div>
+                            <span class="ep-label">Currently Active Number</span>
+                            <span class="ep-num" id="sa-settings-ep-text">Not configured</span>
+                        </div>
+                    </div>
+                    <div class="settings-grid">
+                        <div class="form-group"><label>New Easypaisa Number</label><input type="text" id="sa-new-ep-number" class="form-control" placeholder="03001234567"></div>
+                        <div class="form-group"><label>Account Name (for agents to verify)</label><input type="text" id="sa-ep-account-name" class="form-control" placeholder="e.g. Muhammad Khalid"></div>
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="saveEasypaisaNumber()">&#128190; Save Easypaisa Number</button>
+                </div>
+                <div class="settings-section">
+                    <h4>&#9993;&#65039; Change Super Admin Email</h4>
+                    <p class="section-desc">Update the Super Admin login email. You will be signed out after saving.</p>
+                    <div class="settings-grid">
+                        <div class="form-group"><label>New Email</label><input type="email" id="sa-new-email" class="form-control" placeholder="admin@agentapis.com"></div>
+                        <div class="form-group"><label>Confirm with Current Password</label><input type="password" id="sa-email-pass" class="form-control" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"></div>
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="saChangeEmail()">Save New Email</button>
+                </div>
+                <div class="settings-section">
+                    <h4>&#128274; Change Super Admin Password</h4>
+                    <p class="section-desc">Use a strong unique password. Min 8 characters recommended.</p>
+                    <div class="settings-grid">
+                        <div class="form-group"><label>Current Password</label><input type="password" id="sa-current-pass" class="form-control" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"></div>
+                        <div class="form-group"><label>New Password</label><input type="password" id="sa-new-pass" class="form-control" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"></div>
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="saChangePassword()">Update Password</button>
+                </div>
+                <div class="settings-section">
+                    <h4>&#128181; Default USD Pricing</h4>
+                    <p class="section-desc">Platform-wide default price for new API entries (USD per call). Individual overrides set in API Catalog Manager.</p>
+                    <div style="max-width:320px;">
+                        <div class="form-group"><label>Default Price (USD per call)</label><input type="number" id="sa-default-usd-price" class="form-control" placeholder="0.001" step="0.0001" min="0"></div>
+                        <button class="btn btn-primary btn-sm" onclick="saSetDefaultPrice()">Save Default</button>
                     </div>
                 </div>
             </div>
