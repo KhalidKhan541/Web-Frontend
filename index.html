@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent API Marketplace - Sell & Integrate APIs</title>
+    <meta name="description" content="Discover, price, and sell APIs directly to AI agents. Native Easypaisa integration for seamless wallet top-ups.">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body data-theme="light">
+
+    <!-- Header & Navigation -->
+    <header>
+        <div class="nav-container">
+            <div class="logo" onclick="showView('home')">
+                🧠 AgentAPIs <span>Marketplace</span>
+            </div>
+            <nav>
+                <a onclick="showView('home')" class="active">Home</a>
+                <a onclick="showView('explore')">Explore APIs</a>
+                <a id="nav-portal-link" onclick="showView('portal')" style="display: none;">Developer Portal</a>
+                <a id="nav-admin-link" onclick="showView('admin')" style="display: none;">Admin Catalog</a>
+                <a onclick="showView('docs')">API Docs</a>
+            </nav>
+            <div class="right-nav">
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme">🌙</button>
+                <button class="btn btn-primary" id="nav-auth-link" onclick="showView('auth')">Developer Login</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+
+        <!-- 1. Home / Landing Page -->
+        <section id="home-page" class="page active">
+            <div class="hero-section">
+                <h1>Pay-As-You-Go APIs for <span>Autonomous AI Agents</span></h1>
+                <p>Equip your LLM agents and workflows with on-demand access to 1,400+ public API integrations. Define prices, manage developer credits, and cash out instantly with Pakistan's native Easypaisa checkout.</p>
+                <div class="hero-buttons">
+                    <button class="btn btn-primary" onclick="showView('explore')">Browse API Catalog</button>
+                    <button class="btn btn-secondary" onclick="showView('auth')">Register & Get Free 50 PKR</button>
+                </div>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="grid-container" style="margin-top: 3rem;">
+                <div class="card">
+                    <div class="card-category">Core Middleware</div>
+                    <div class="card-title">Micro-Payment Proxy</div>
+                    <p class="card-desc" style="height: auto;">Every API request from your AI agents is routed through our low-latency gateway. It checks API keys, validates balances, routes requests, and deducts credits in real-time.</p>
+                </div>
+                <div class="card">
+                    <div class="card-category">Payment gateway</div>
+                    <div class="card-title">Easypaisa Wallet Native</div>
+                    <p class="card-desc" style="height: auto;">Fully integrated checkout enabling Pakistani developers to fund accounts using Easypaisa Mobile Wallet. Supports secure hash checking and server-to-server callbacks.</p>
+                </div>
+                <div class="card">
+                    <div class="card-category">Developer Centric</div>
+                    <div class="card-title">Dynamic Admin Controls</div>
+                    <p class="card-desc" style="height: auto;">Administrative portal to view entire call histories, track individual API popularity, configure profit margins, and update prices per call in real time.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Explore Catalog Page -->
+        <section id="explore-page" class="page">
+            <h2 style="font-family: var(--font-heading); font-weight: 800; font-size: 2.2rem;">API Catalog</h2>
+            <p style="color: var(--text-muted);">Search and view pricing for all active API integrations connected to the proxy gateway.</p>
+            
+            <!-- Search & Filters -->
+            <div class="search-filter-bar">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="api-search" placeholder="Search API integrations (e.g. Weather, Maps, Cat Facts)...">
+                </div>
+                <select id="category-filter" class="filter-select" onchange="handleCategoryFilter(this.value)">
+                    <option value="All">All Categories</option>
+                </select>
+            </div>
+
+            <!-- APIs Grid -->
+            <div class="grid-container" id="apis-grid">
+                <!-- API Cards populated dynamically via JS -->
+            </div>
+        </section>
+
+        <!-- 3. Auth Page (Login / Sign Up) -->
+        <section id="auth-page" class="page">
+            <div class="auth-box">
+                <div class="auth-header">
+                    <h2>Welcome to AgentAPIs</h2>
+                    <p>Register or log in to manage your AI agent keys and top up credits.</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="auth-email">Email Address</label>
+                    <input type="email" id="auth-email" class="form-control" placeholder="developer@gmail.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="auth-password">Password</label>
+                    <input type="password" id="auth-password" class="form-control" placeholder="••••••••" required>
+                </div>
+                
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button class="btn btn-primary" style="flex: 1;" onclick="handleAuth('login')">Log In</button>
+                    <button class="btn btn-secondary" style="flex: 1;" onclick="handleAuth('register')">Sign Up</button>
+                </div>
+                
+                            </div>
+        </section>
+
+        <!-- 4. Developer Portal (Dashboard) -->
+        <section id="portal-page" class="page">
+            <h2 style="font-family: var(--font-heading); font-weight: 800; font-size: 2.2rem; margin-bottom: 0.5rem;">Developer Portal</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Configure credentials, test API endpoints, and view logs.</p>
+
+            <div class="dashboard-layout">
+                <!-- Sidebar -->
+                <aside class="dashboard-sidebar">
+                    <div class="profile-card">
+                        <div class="profile-avatar">U</div>
+                        <h3 class="profile-email" style="font-family: var(--font-heading); font-size: 1.05rem; word-break: break-all;">user@email.com</h3>
+                        <div class="profile-balance">0.00 PKR</div>
+                        <button class="btn btn-primary btn-sm" style="margin-top: 1rem; width: 100%;" onclick="openTopupModal()">💳 Top Up (Easypaisa)</button>
+                    </div>
+                    <div class="sidebar-menu">
+                        <div class="sidebar-menu-btn active" onclick="showDashboardPane('keys')">🔑 API Keys & Auth</div>
+                        <div class="sidebar-menu-btn" onclick="showDashboardPane('sandbox')">🧪 Sandbox Test</div>
+                        <div class="sidebar-menu-btn" onclick="showDashboardPane('transactions')">📊 Usage Logs</div>
+                    </div>
+                </aside>
+
+                <!-- Pane Contents -->
+                <div class="dashboard-content">
+                    <!-- A. Keys Pane -->
+                    <div id="keys-pane" class="dashboard-pane active">
+                        <h3 style="margin-bottom: 0.5rem; font-family: var(--font-heading);">Gateway Authorization</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Use this key inside your LLM agent's HTTP request header to authenticate proxy routing.</p>
+                        
+                        <div class="form-group">
+                            <label>X-Agent-API-Key</label>
+                            <div class="key-box">
+                                <span id="api-key-display">agent_key_placeholder</span>
+                                <span class="copy-icon" onclick="copyApiKey()" title="Copy API Key">📋</span>
+                            </div>
+                        </div>
+                        
+                        <div class="card" style="margin-top: 2rem; background-color: rgba(99, 102, 241, 0.05); border-color: rgba(99, 102, 241, 0.2);">
+                            <h4 style="color: var(--color-primary); font-family: var(--font-heading); margin-bottom: 0.5rem;">🔒 Safety Instruction for Agents</h4>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
+                                Instruct your AI Agents to check their remaining wallet balance using metadata response headers. If the headers contain <strong>X-Agent-Remaining-Balance</strong> and the amount drops below 5 PKR, direct the agent to notify the user via chat dialog to avoid runtime failures.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- B. Sandbox Test Pane -->
+                    <div id="sandbox-pane" class="dashboard-pane">
+                        <h3 style="margin-bottom: 0.5rem; font-family: var(--font-heading);">Interactive Code Sandbox</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Perform real API tests through the proxy and watch the balance decrement instantly.</p>
+                        
+                        <div class="sandbox-grid">
+                            <!-- Left Settings -->
+                            <div>
+                                <div class="form-group">
+                                    <label for="sandbox-api-select">Select API to Query</label>
+                                    <select id="sandbox-api-select" class="form-control">
+                                        <!-- Populated via JS -->
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Request Integration snippet</label>
+                                    <div style="display:flex; gap:0.5rem; margin-bottom: 0.75rem;">
+                                        <button class="btn btn-secondary btn-sm lang-btn active" onclick="changeSandboxLanguage('curl')">curl</button>
+                                        <button class="btn btn-secondary btn-sm lang-btn" onclick="changeSandboxLanguage('javascript')">JavaScript</button>
+                                        <button class="btn btn-secondary btn-sm lang-btn" onclick="changeSandboxLanguage('python')">Python</button>
+                                    </div>
+                                    <div class="terminal-header">
+                                        <div class="terminal-dots">
+                                            <span class="terminal-dot dot-red"></span>
+                                            <span class="terminal-dot dot-yellow"></span>
+                                            <span class="terminal-dot dot-green"></span>
+                                        </div>
+                                        <span class="terminal-title">Code Client snippet</span>
+                                    </div>
+                                    <pre class="code-terminal" id="sandbox-code" style="height: 160px;"></pre>
+                                </div>
+                                <button class="btn btn-primary" onclick="runSandboxRequest()" style="width: 100%;">⚡ Run Test Request</button>
+                            </div>
+
+                            <!-- Right Outputs -->
+                            <div>
+                                <label style="display:block; font-weight:600; font-size:0.9rem; margin-bottom: 0.5rem;">Gateway Proxy Response</label>
+                                <div class="terminal-header">
+                                    <div class="terminal-dots">
+                                        <span class="terminal-dot dot-red"></span>
+                                        <span class="terminal-dot dot-yellow"></span>
+                                        <span class="terminal-dot dot-green"></span>
+                                    </div>
+                                    <span class="terminal-title">Output terminal</span>
+                                </div>
+                                <pre class="code-terminal output" id="sandbox-output">// Run a test request on the left to see the output format...</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- C. Transactions Logs Pane -->
+                    <div id="transactions-pane" class="dashboard-pane">
+                        <h3 style="margin-bottom: 0.5rem; font-family: var(--font-heading);">Recent Proxy Logs</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Audit log for your API keys detailing request types, responses, and charges.</p>
+                        
+                        <div style="overflow-x: auto;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>API Called</th>
+                                        <th>Status Code</th>
+                                        <th>Charged Cost</th>
+                                        <th>Time (UTC)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="logs-table-body">
+                                    <!-- Populated via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. Admin Page -->
+        <section id="admin-page" class="page">
+            <h2 style="font-family: var(--font-heading); font-weight: 800; font-size: 2.2rem; margin-bottom: 0.5rem;">Admin Catalog Manager</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Adjust individual prices per call, view overall transaction metrics, and manage user limits.</p>
+            
+            <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 2rem;">
+                <!-- API Prices Manager -->
+                <div>
+                    <h3 style="font-family: var(--font-heading); margin-bottom: 1rem;">Set Cost per API Call</h3>
+                    <div style="overflow-y: auto; max-height: 500px; border: 1px solid var(--border-glass); border-radius: var(--radius-md); background-color: var(--bg-surface);">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>API Integration</th>
+                                    <th>Cost per Call</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-catalog-tbody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Global Audit Log -->
+                <div>
+                    <h3 style="font-family: var(--font-heading); margin-bottom: 1rem;">Global System Usage Log</h3>
+                    <div style="overflow-y: auto; max-height: 500px; border: 1px solid var(--border-glass); border-radius: var(--radius-md); background-color: var(--bg-surface);">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>API</th>
+                                    <th>Status</th>
+                                    <th>Cost</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-audit-tbody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. API Docs Page -->
+        <section id="docs-page" class="page">
+            <h2 style="font-family: var(--font-heading); font-weight: 800; font-size: 2.2rem; margin-bottom: 0.5rem;">Integration Guide</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2.5rem;">Configure your LLMs, LangChain agents, or custom backend services to query the marketplace proxy.</p>
+
+            <div class="docs-section">
+                <h3>1. Base URL & Header Credentials</h3>
+                <p>All proxy endpoints use the standard marketplace host base. You must attach your custom developer key as an HTTP header name: <code>X-Agent-API-Key</code>.</p>
+                <div class="key-box" style="justify-content: flex-start; gap: 1rem; color: #a855f7;">
+                    <strong>Header Key:</strong> X-Agent-API-Key
+                </div>
+                <div class="key-box" style="justify-content: flex-start; gap: 1rem; color: var(--color-primary-light); margin-top: 0.5rem;">
+                    <strong>Base Request Endpoint:</strong> http://127.0.0.1:8000/api/proxy/{API_NAME}
+                </div>
+            </div>
+
+            <div class="docs-section">
+                <h3>2. Error Handlers</h3>
+                <p>If an API request fails, the proxy forwards the original error status code where possible. However, if the agent runs out of wallet balance, the proxy returns a specific <strong>402 Payment Required</strong> code.</p>
+                
+                <div style="overflow-x: auto; margin-top: 1rem;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Status Code</th>
+                                <th>Error Description</th>
+                                <th>Remediation Step</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge badge-danger">401</span></td>
+                                <td>Unauthorized: API Key is invalid or missing.</td>
+                                <td>Ensure the header <code>X-Agent-API-Key</code> matches the key in your developer dashboard.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge badge-warning">402</span></td>
+                                <td>Payment Required: Wallet balance is below the per-call price of target API.</td>
+                                <td>Prompt user to top up credits in PKR using Easypaisa.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge badge-danger">404</span></td>
+                                <td>Not Found: Target API name does not exist in seed.</td>
+                                <td>Open the explore tab and double check spelling of API name.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="docs-section">
+                <h3>3. LangChain Example Integration</h3>
+                <p>Implement a custom python function inside LangChain tools or custom tools to make the call:</p>
+                <pre class="code-terminal" style="height: auto; max-height: 400px; color:#a855f7;">
+from langchain.agents import tool
+import requests
+
+@tool
+def call_marketplace_api(api_name: str, query_params: dict = None) -> str:
+    """Call a marketplace public API and pay per use. api_name should match explore catalog."""
+    url = f"http://127.0.0.1:8000/api/proxy/{api_name}"
+    headers = {
+        "X-Agent-API-Key": "YOUR_DEVELOPER_API_KEY"
+    }
+    
+    try:
+        response = requests.get(url, headers=headers, params=query_params)
+        if response.status_code == 402:
+            return "Payment Required: Please notify user to top up their Easypaisa wallet."
+        return response.text
+    except Exception as e:
+        return f"Error connecting to proxy: {str(e)}"
+                </pre>
+            </div>
+        </section>
+        
+    </main>
+
+    <!-- Modals Overlay -->
+    <div class="modal-overlay" id="topup-modal">
+        <div class="modal-card">
+            <button class="modal-close" onclick="closeTopupModal()">✕</button>
+            <h3 style="font-family: var(--font-heading); margin-bottom: 0.5rem;">Fund Developer Wallet</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Select your amount in Pakistani Rupees (PKR) and proceed through the Easypaisa Checkout Portal.</p>
+            
+            <div class="form-group">
+                <label for="topup-amount">Deposit Amount (PKR)</label>
+                <input type="number" id="topup-amount" class="form-control" value="250" min="10" max="10000" required>
+            </div>
+            
+            <div style="background-color: var(--bg-base); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem; border: 1px solid var(--border-glass);">
+                <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem; font-size: 0.85rem;">
+                    <span>Payment Gateway:</span>
+                    <strong>Easypaisa Hosted Page</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size: 0.85rem;">
+                    <span>Processing Fee:</span>
+                    <strong style="color: var(--color-success);">0.00 PKR (Free)</strong>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="handleTopupSubmit()" style="width: 100%;">Proceed to Payment</button>
+        </div>
+    </div>
+
+    <!-- Global Toasts notifications -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
