@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Easypaisa - Secure Hosted Payment Gateway</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        
+        :root {
+            --ep-green: #00a859;
+            --ep-green-dark: #008746;
+            --ep-light-bg: #f4fbf7;
+            --text-dark: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f3f4f6;
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .gateway-card {
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 440px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .gateway-header {
+            background-color: var(--ep-light-bg);
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--ep-green);
+        }
+
+        .logo-box {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--ep-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 0.95rem;
+        }
+
+        .logo-text {
+            font-weight: 800;
+            color: var(--ep-green-dark);
+            font-size: 1.25rem;
+        }
+
+        .logo-text span {
+            color: var(--text-dark);
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: block;
+            margin-top: -3px;
+        }
+
+        .amount-badge {
+            text-align: right;
+        }
+
+        .amount-val {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--ep-green);
+        }
+
+        .amount-lbl {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .gateway-body {
+            padding: 2rem 1.5rem;
+        }
+
+        .merchant-row {
+            display: flex;
+            justify-content: space-between;
+            background-color: #f9fafb;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #f3f4f6;
+        }
+
+        .merchant-row span {
+            color: var(--text-muted);
+        }
+
+        .merchant-row strong {
+            color: var(--text-dark);
+        }
+
+        .pay-tab {
+            margin-bottom: 1.5rem;
+        }
+
+        .tab-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: var(--text-dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--ep-green);
+        }
+
+        .btn-pay {
+            width: 100%;
+            padding: 0.95rem;
+            background-color: var(--ep-green);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 168, 89, 0.2);
+            margin-top: 0.5rem;
+        }
+
+        .btn-pay:hover {
+            background-color: var(--ep-green-dark);
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+        }
+
+        /* Modal Overlay inside card */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .spinner {
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--ep-green);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-checkmark {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: var(--ep-light-bg);
+            color: var(--ep-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0.6); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="gateway-card" style="position: relative;">
+        <!-- Header -->
+        <div class="gateway-header">
+            <div class="logo-box">
+                <div class="logo-circle">ep</div>
+                <div class="logo-text">
+                    easypaisa
+                    <span>Hosted Checkout (Sandbox)</span>
+                </div>
+            </div>
+            <div class="amount-badge">
+                <div class="amount-val" id="display-amount">0.00 PKR</div>
+                <div class="amount-lbl">Total Amount</div>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="gateway-body">
+            <div class="merchant-row">
+                <div>
+                    <span>Merchant:</span>
+                    <strong>AgentAPIs Marketplace</strong>
+                </div>
+                <div>
+                    <span>Store ID:</span>
+                    <strong id="display-store-id">12345</strong>
+                </div>
+            </div>
+
+            <!-- Tab: Mobile Wallet -->
+            <div class="pay-tab">
+                <div class="tab-title">Pay via Easypaisa Mobile Account</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">Enter your Easypaisa active mobile number to receive a transaction request.</div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <label style="display:block; font-size: 0.75rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.35rem;">Mobile Number</label>
+                    <input type="text" id="mobile-number" class="form-control" placeholder="e.g. 03001234567" value="03001234567">
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display:block; font-size: 0.75rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.35rem;">Billing Email</label>
+                    <input type="email" id="billing-email" class="form-control" placeholder="developer@gmail.com">
+                </div>
+
+                <button class="btn-pay" onclick="proceedToOTP()">Pay Securely</button>
+            </div>
+
+            <div class="footer-note">
+                🔒 Secured with 256-bit SSL Encryption
+            </div>
+        </div>
+
+        <!-- Simulated Loading & OTP overlay -->
+        <div class="overlay" id="loading-overlay">
+            <div class="spinner"></div>
+            <h3 id="loading-text" style="font-weight: 600;">Processing request...</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">Connecting with Easypaisa secure servers.</p>
+        </div>
+
+        <!-- OTP Approving Screen Overlay -->
+        <div class="overlay" id="otp-overlay">
+            <h3 style="font-weight: 700; margin-bottom: 0.5rem; color: var(--ep-green-dark);">Approve Mobile Account Push</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.5;">We have sent a simulated transaction PIN authorization request to your phone. Enter the standard PIN code <strong>1234</strong> to authorize.</p>
+            
+            <div style="margin-bottom: 1.5rem; max-width: 200px; margin: 0 auto 1.5rem;">
+                <input type="password" id="otp-code" class="form-control" placeholder="••••" style="text-align: center; font-size: 1.5rem; letter-spacing: 0.5em; padding: 0.65rem;" maxlength="4">
+            </div>
+            
+            <button class="btn-pay" onclick="submitOTP()">Confirm Authorization</button>
+        </div>
+
+        <!-- Success Screen Overlay -->
+        <div class="overlay" id="success-overlay">
+            <div class="success-checkmark">✓</div>
+            <h3 style="font-weight: 700; color: var(--ep-green); margin-bottom: 0.5rem;">Payment Successful!</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; max-width: 280px; margin: 0 auto;" id="success-message">Order ID EP_xxxx was successfully processed. Crediting user account balance.</p>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2rem;">Redirecting you back to developer dashboard...</p>
+        </div>
+    </div>
+
+    <script>
+        // Parse Query Params
+        const params = new URLSearchParams(window.location.search);
+        const storeId = params.get('storeId') || '12345';
+        const orderId = params.get('orderId') || 'EP_MOCK_ORDER';
+        const amount = params.get('amount') || '100.00';
+        const postBackURL = params.get('postBackURL') || '/callback';
+        const secureHash = params.get('secureHash');
+
+        document.getElementById('display-amount').textContent = `${parseFloat(amount).toFixed(2)} PKR`;
+        document.getElementById('display-store-id').textContent = storeId;
+        
+        // Populate stored user email
+        const userSession = localStorage.getItem('agent_user');
+        if (userSession) {
+            const user = JSON.parse(userSession);
+            document.getElementById('billing-email').value = user.email;
+        }
+
+        function proceedToOTP() {
+            const mobile = document.getElementById('mobile-number').value.trim();
+            if (!mobile) {
+                alert("Please enter a valid mobile number.");
+                return;
+            }
+
+            const loader = document.getElementById('loading-overlay');
+            loader.style.display = 'flex';
+            
+            setTimeout(() => {
+                loader.style.display = 'none';
+                document.getElementById('otp-overlay').style.display = 'flex';
+            }, 1200);
+        }
+
+        async function submitOTP() {
+            const otp = document.getElementById('otp-code').value.trim();
+            if (otp !== '1234') {
+                alert("Invalid PIN. For sandbox testing, please enter '1234'.");
+                return;
+            }
+
+            // Hide OTP and show loader again for final callback handshake
+            document.getElementById('otp-overlay').style.display = 'none';
+            const loader = document.getElementById('loading-overlay');
+            document.getElementById('loading-text').textContent = 'Confirming signature and calling callback...';
+            loader.style.display = 'flex';
+
+            try {
+                // Wait 1.5 seconds to feel realistic
+                await new Promise(r => setTimeout(r, 1500));
+
+                // Read databases from localStorage
+                const usersDb = JSON.parse(localStorage.getItem('agent_users_db') || '[]');
+                const payments = JSON.parse(localStorage.getItem('agent_payments') || '[]');
+
+                // Find the user email (which is passed in query parameters)
+                const userEmail = params.get('email') || 'developer@gmail.com';
+                const userIdx = usersDb.findIndex(u => u.email.toLowerCase() === userEmail.toLowerCase());
+
+                if (userIdx === -1) {
+                    throw new Error("Target developer account not found in registration database.");
+                }
+
+                const amountVal = parseFloat(amount);
+
+                // Credit the user balance
+                usersDb[userIdx].balance += amountVal;
+                
+                // Update active user session if they are currently logged in as this email
+                const currentUserSession = localStorage.getItem('agent_user');
+                if (currentUserSession) {
+                    const sessionObj = JSON.parse(currentUserSession);
+                    if (sessionObj.email.toLowerCase() === userEmail.toLowerCase()) {
+                        sessionObj.balance += amountVal;
+                        localStorage.setItem('agent_user', JSON.stringify(sessionObj));
+                    }
+                }
+
+                // Update the payment log to approved
+                const payIdx = payments.findIndex(p => p.orderId === orderId);
+                if (payIdx !== -1) {
+                    payments[payIdx].status = 'approved';
+                    payments[payIdx].ref_number = 'EP-' + Math.floor(100000000 + Math.random() * 900000000);
+                } else {
+                    // Create entry if missing
+                    payments.push({
+                        orderId: orderId,
+                        user_email: userEmail,
+                        amount: amountVal,
+                        status: 'approved',
+                        ref_number: 'EP-' + Math.floor(100000000 + Math.random() * 900000000),
+                        timestamp: new Date().toISOString()
+                    });
+                }
+
+                localStorage.setItem('agent_users_db', JSON.stringify(usersDb));
+                localStorage.setItem('agent_payments', JSON.stringify(payments));
+
+                // Add to platform revenue in admin controls
+                const rev = parseFloat(localStorage.getItem('agent_revenue') || '0');
+                localStorage.setItem('agent_revenue', (rev + amountVal).toString());
+
+                // Show Success Screen
+                loader.style.display = 'none';
+                document.getElementById('success-message').textContent = `Order ID ${orderId} was successfully processed. Credited ${amountVal.toFixed(2)} PKR to developer wallet.`;
+                document.getElementById('success-overlay').style.display = 'flex';
+
+                // Redirect user back to home/dashboard
+                setTimeout(() => {
+                    window.location.href = 'index.html#portal'; // Direct to developer portal hash
+                }, 3000);
+
+            } catch (e) {
+                loader.style.display = 'none';
+                alert("Simulated callback transaction failed: " + e.message);
+                // Allow user to retry
+                document.getElementById('otp-overlay').style.display = 'flex';
+            }
+        }
+    </script>
+</body>
+</html>
